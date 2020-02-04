@@ -1,4 +1,5 @@
 from app import db, ma
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 
 
@@ -11,6 +12,4 @@ class Author(db.Model):
     last_name = db.Column(db.String(100))
     bio = db.Column(db.Text)
     books = relationship('Book', secondary='book_authors')
-
-
-
+    __table_args__ = (UniqueConstraint('first_name', 'middle_name', 'last_name', name='_author_name_uc'),)

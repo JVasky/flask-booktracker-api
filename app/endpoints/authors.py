@@ -1,8 +1,11 @@
-from app import api
+from app import api, db
 from app.models.authors import Author
-from app.models.schemas import AuthorSchema
+from app.models.books import Book
+from app.models.schemas import AuthorSchema, CreateAuthorSchema
 from flask import request
 from flask_restful import Resource
+from sqlalchemy import and_
+from sqlalchemy.exc import SQLAlchemyError
 
 
 class AuthorListAPI(Resource):
@@ -30,6 +33,53 @@ class AuthorListAPI(Resource):
                 'data': result
             }
             return response
+
+    def post(self):
+        data = request.get_json()
+        create_author_schema = CreateAuthorSchema()
+        errors = create_author_schema.validate(data)
+        if len(errors) == 0:
+            data = create_author_schema.load(data)
+            if Author.query.filter(and_(
+                                        Author.first_name == data['first_name'], 
+                                        Author.middle_name == data['middle_name'],
+                                        Author.last_name == data['last_name'])).first() is not None:
+                return {
+                    "message": "Author already exists!"
+                }, 400
+            a = Author(
+                first_name=data['first_name'],
+                middle_name=data['middle_name'],
+                last_name=data['last_name'],
+                bio=data['bio']
+            )
+            if len(data['books']) > 0:
+                books = Book.query.filter(Book.id.in_(data['books'])).all()
+                for b in books:
+                    a.books.append(b)
+            try:
+                db.session.add(a)
+                db.session.commit()
+
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                if type(e).__name__ == 'IntegrityError':
+                    response = {
+                        'message': 'Error inserting new author: ' + e.orig.args[0],
+                    }
+                else:
+                    response = {
+                        'message': 'DB error: ' + e.orig.args[0]
+                    }
+                return response, 500
+
+            return "", 201   
+        else:
+            response = {
+                'message': 'there were errors with the author submission',
+                'errors': errors
+            }
+            return response, 40
 
 
 class AuthorAPI(Resource):

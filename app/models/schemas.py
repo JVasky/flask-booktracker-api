@@ -66,3 +66,11 @@ class AuthorSchema(ma.ModelSchema):
         model = Author
 
     books = ma.List(ma.HyperlinkRelated('book', url_key='id'))
+
+
+class CreateAuthorSchema(ma.Schema):
+    first_name = fields.Str(required=True, validate=Length(max=100))
+    middle_name = fields.Str(validate=Length(max=100), missing=None)
+    last_name = fields.Str(validate=Length(max=100), missing=None)
+    bio = fields.Str(validate=Length(max=100000), missing=None)
+    books = fields.List(fields.Integer, missing=[])
