@@ -1,11 +1,8 @@
-from app import db, api
+from app import api
 from app.models.authors import Author
-from app.models.books import Book
 from app.models.schemas import AuthorSchema
 from flask import request
-from flask_restful import Resource, reqparse
-from sqlalchemy import or_
-from sqlalchemy.exc import SQLAlchemyError
+from flask_restful import Resource
 
 
 class AuthorListAPI(Resource):
