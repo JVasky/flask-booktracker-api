@@ -87,7 +87,7 @@ class UserListAPI(Resource):
             response = {
                 'data': result
             }
-            return "", 204  
+            return "", 201  
         else:
             response = {
                 'message': 'there were errors with the user submission',

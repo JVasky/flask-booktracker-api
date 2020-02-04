@@ -70,7 +70,7 @@ class BookListAPI(Resource):
                     }
                 return response, 500
 
-            return "", 204   
+            return "", 201   
         else:
             response = {
                 'message': 'there were errors with the book submission',
