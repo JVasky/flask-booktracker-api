@@ -2,6 +2,7 @@ from app import db, api
 from app.models.authors import Author
 from app.models.books import Book
 from app.models.schemas import BookSchema, CreateBookSchema
+from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from flask import request
 from sqlalchemy import or_
@@ -9,7 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 
 class BookAPI(Resource):
-
+    @jwt_required
     def get(self, id):
         book = Book.query.filter_by(id=id).first()
         if book is None:
@@ -27,6 +28,7 @@ class BookAPI(Resource):
 
 
 class BookListAPI(Resource):
+    @jwt_required
     def get(self):
         books = Book.query.order_by(Book.id).all()
         if books is None:
@@ -42,6 +44,7 @@ class BookListAPI(Resource):
             }
             return response
 
+    @jwt_required
     def post(self):
         data = request.get_json()
         create_book_schema = CreateBookSchema()
@@ -80,6 +83,7 @@ class BookListAPI(Resource):
 
 
 class AuthorBookListAPI(Resource):
+    @jwt_required
     def get(self, author_id):
         books = Book.query.filter(Book.authors.any(id=author_id)).all()
         if len(books) == 0:
@@ -97,6 +101,7 @@ class AuthorBookListAPI(Resource):
 
 
 class BookTitleSearchAPI(Resource):
+    @jwt_required
     def get(self, keyword):
         books = Book.query.filter(or_(Book.title.ilike(f'%{keyword}%'), Book.description.ilike(f'%{keyword}%'))).all()
         if len(books) == 0:

@@ -45,6 +45,11 @@ class CreateUserSchema(ma.Schema):
         exclude: ["password"]
 
 
+class LoginSchema(ma.Schema):
+    username = fields.Str(required=True, validate=Length(max=30))
+    password = fields.Str(required=True, validate=Length(min=8))
+
+
 class BookSchema(ma.ModelSchema):
     class Meta:
         model = Book

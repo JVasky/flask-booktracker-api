@@ -3,12 +3,14 @@ from app.models.authors import Author
 from app.models.books import Book
 from app.models.schemas import AuthorSchema, CreateAuthorSchema
 from flask import request
+from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError
 
 
 class AuthorListAPI(Resource):
+    @jwt_required
     def get(self):
         page = request.args.get('page')
         if page is not None and page != '0':
@@ -34,6 +36,7 @@ class AuthorListAPI(Resource):
             }
             return response
 
+    @jwt_required
     def post(self):
         data = request.get_json()
         create_author_schema = CreateAuthorSchema()
@@ -83,6 +86,7 @@ class AuthorListAPI(Resource):
 
 
 class AuthorAPI(Resource):
+    @jwt_required
     def get(self, author_id):
         author = Author.query.filter_by(id=author_id).first()
         if author is None:
