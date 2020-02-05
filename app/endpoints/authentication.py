@@ -1,4 +1,4 @@
-from app import api, db
+from app import api
 from app.models.users import User
 from app.models.schemas import UserSchema, LoginSchema
 from flask import request
