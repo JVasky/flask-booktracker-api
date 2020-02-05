@@ -7,6 +7,18 @@ from marshmallow.validate import Length
 import re
 
 
+class LowerCased(fields.Field):
+    # Field that de/serializes to a lowercase string
+
+    def _serialize(self, value, attr, obj, **kwargs):
+        if value is None:
+            return None
+        return value.lower()
+
+    def _deserialize(self, value, attr, data, **kwargs):
+        return value.lower()
+
+
 class UserSchema(ma.ModelSchema):
     class Meta:
         model = User
@@ -14,7 +26,7 @@ class UserSchema(ma.ModelSchema):
 
 
 class CreateUserSchema(ma.Schema):
-    username = fields.Str(required=True, validate=Length(max=30))
+    username = LowerCased(required=True, validate=Length(max=30))
     email = fields.Str(required=True, validate=Length(max=120))
     first_name = fields.Str(required=True, validate=Length(max=30))
     last_name = fields.Str(required=True, validate=Length(max=30))

@@ -26,7 +26,7 @@ class LoginAPI(Resource):
         user = User.query.filter_by(username=data['username']).first()
         if user is None:
             return {
-                'msg': 'Invalid username or password'
+                'message': 'Invalid username or password'
             }, 401
         if user.check_password(data['password']):
             token = create_access_token(identity=user.username)
@@ -95,6 +95,23 @@ class UserListAPI(Resource):
         create_user_schema = CreateUserSchema()
         errors = create_user_schema.validate(data)
         if len(errors) == 0:
+            data = create_user_schema.load(data)
+
+            # check username
+            user = User.query.filter_by(username=data['username']).first()
+            if user is not None:
+                return {
+                    'message': 'Username exists!'
+                }, 400
+            
+            # check email
+            user = User.query.filter_by(email=data['email']).first()
+            if user is not None:
+                return {
+                    'message': 'Email exists!'
+                }, 400
+
+            # create user
             u = User(
                 username=data['username'],
                 email=data['email'],
