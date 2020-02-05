@@ -2,6 +2,7 @@ from app import api, db
 from app.models.authors import Author
 from app.models.books import Book
 from app.models.schemas import AuthorSchema, CreateAuthorSchema
+from app.jwt_custom import admin_required
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
@@ -36,7 +37,7 @@ class AuthorListAPI(Resource):
             }
             return response
 
-    @jwt_required
+    @admin_required
     def post(self):
         data = request.get_json()
         create_author_schema = CreateAuthorSchema()
