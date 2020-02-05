@@ -73,7 +73,6 @@ class LoginSchema(ma.Schema):
 class BookSchema(ma.ModelSchema):
     class Meta:
         model = Book
-        exclude = ["approved"]
 
     authors = ma.List(ma.HyperlinkRelated('author', url_key='author_id'))
 

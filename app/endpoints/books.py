@@ -2,6 +2,7 @@ from app import db, api
 from app.models.authors import Author
 from app.models.books import Book
 from app.models.schemas import BookSchema, CreateBookSchema
+from app.jwt_custom import admin_required
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from flask import request
@@ -19,7 +20,7 @@ class BookAPI(Resource):
             }
             return response, 404
         else:
-            book_schema = BookSchema()
+            book_schema = BookSchema(exclude=['approved'])
             result = book_schema.dumps(book)
             response = {
                 'data': result
@@ -27,17 +28,35 @@ class BookAPI(Resource):
         return response
 
 
-class BookListAPI(Resource):
-    @jwt_required
+class BookPendingListAPI(Resource):
+    @admin_required
     def get(self):
-        books = Book.query.order_by(Book.id).all()
-        if books is None:
+        books = Book.query.filter_by(approved=False).order_by(Book.id).all()
+        if len(books) == 0:
             response = {
-                'message': 'there are no books'
+                'message': 'There are no books'
             }
             return response, 404
         else:
-            books_schema = BookSchema(many=True)
+            books_schema = BookSchema(exclude=['authors'], many=True)
+            result = books_schema.dumps(books)
+            response = {
+                'data': result
+            }
+            return response
+
+
+class BookListAPI(Resource):
+    @jwt_required
+    def get(self):
+        books = Book.query.filter_by(approved=True).order_by(Book.id).all()
+        if len(books) == 0:
+            response = {
+                'message': 'There are no books'
+            }
+            return response, 404
+        else:
+            books_schema = BookSchema(many=True, exclude=['approved'])
             result = books_schema.dumps(books)
             response = {
                 'data': result
@@ -120,5 +139,6 @@ class BookTitleSearchAPI(Resource):
 
 api.add_resource(BookAPI, '/books/<int:id>', endpoint='book')
 api.add_resource(BookListAPI, '/books', endpoint='books')
+api.add_resource(BookPendingListAPI, '/books/pending', endpoint='books-pending')
 api.add_resource(AuthorBookListAPI, '/books/author/<int:author_id>', endpoint='books_by_author')
 api.add_resource(BookTitleSearchAPI, '/books/search/<string:keyword>', endpoint='book_title_search')
