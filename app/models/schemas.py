@@ -38,6 +38,7 @@ class CreateUserSchema(ma.Schema):
     first_name = fields.Str(required=True, validate=Length(max=30))
     last_name = fields.Str(required=True, validate=Length(max=30))
     password = fields.Str(required=True, validate=Length(min=8))
+    roles = fields.List(fields.Str(validate=Length(max=30)), missing=['user'])
 
     @validates('email')
     def is_valid_email(self, value):

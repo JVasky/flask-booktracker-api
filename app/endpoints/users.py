@@ -1,5 +1,5 @@
 from app import db, api
-from app.models.users import User
+from app.models.users import User, Role
 from app.models.schemas import UserSchema, CreateUserSchema
 from flask import request
 from flask_restful import Resource
@@ -87,6 +87,9 @@ class UserListAPI(Resource):
                 last_name=data['last_name']
             )
             u.set_password(data['password'])
+            roles = Role.query.filter(Role.name.in_(data['roles'])).all()
+            for r in roles:
+                u.roles.append(r)
             try:
                 db.session.add(u)
                 db.session.commit()
