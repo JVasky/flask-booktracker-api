@@ -24,6 +24,10 @@ class LoginAPI(Resource):
             return response, 400
         data = login_schema.load(data)
         user = User.query.filter_by(username=data['username']).first()
+        if user is None:
+            return {
+                'msg': 'Invalid username or password'
+            }, 401
         if user.check_password(data['password']):
             token = create_access_token(identity=user.username)
             return {
