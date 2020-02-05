@@ -20,6 +20,8 @@ class User(db.Model):
     first_name = db.Column(db.String(30), index=True, nullable=False)
     last_name = db.Column(db.String(30), index=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
+    created_dt = db.Column(db.DateTime, server_default=db.func.now())
+    modified_dt = db.Column(db.DateTime, onupdate=db.func.now())
     roles = relationship('Role', secondary='user_roles')
 
     def set_password(self, password):
