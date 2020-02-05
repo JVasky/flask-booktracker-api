@@ -20,3 +20,5 @@ api = Api(app)
 jwt = JWTManager(app)
 models.init_app(app)
 endpoints.init_app(app)
+
+from . import jwt_custom

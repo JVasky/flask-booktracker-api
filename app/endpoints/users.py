@@ -1,10 +1,11 @@
 from app import db, api
-from app.models.users import User
+from app.models.users import User, Role
 from app.models.schemas import UserSchema, CreateUserSchema, LoginSchema
 from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from sqlalchemy.exc import SQLAlchemyError
+from app.jwt_custom import admin_required
 
 
 class LoginAPI(Resource):
@@ -29,7 +30,9 @@ class LoginAPI(Resource):
                 'message': 'Invalid username or password'
             }, 401
         if user.check_password(data['password']):
-            token = create_access_token(identity=user.username)
+            users_schema = UserSchema()
+            u = users_schema.dump(user)
+            token = create_access_token(identity=u)
             return {
                 'token': token
             }, 200
@@ -40,9 +43,9 @@ class LoginAPI(Resource):
 
 
 class UserAPI(Resource):
-    @jwt_required
+    @admin_required
     def get(self, user_id):
-        user = User.query.filter_by(id=user_id).first()
+        user = User.query.options(db.joinedload(User.roles)).filter_by(id=user_id).first()
         if user is None:
             response = {
                 'message': 'user does not exist'

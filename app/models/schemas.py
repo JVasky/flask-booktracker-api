@@ -1,6 +1,6 @@
 from .authors import Author
 from .books import Book
-from .users import User
+from .users import User, Role
 from app import ma
 from marshmallow import fields, validates, ValidationError
 from marshmallow.validate import Length
@@ -23,6 +23,13 @@ class UserSchema(ma.ModelSchema):
     class Meta:
         model = User
         exclude = ["password"]
+
+    roles = fields.Pluck('RoleSchema', 'name', many=True)
+
+
+class RoleSchema(ma.ModelSchema):
+    class Meta:
+        model = Role
 
 
 class CreateUserSchema(ma.Schema):
