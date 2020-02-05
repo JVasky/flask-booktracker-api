@@ -21,6 +21,20 @@ def admin_required(fn):
             return fn(*args, **kwargs)
     return wrapper
 
+
+def dev_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        verify_jwt_in_request()
+        claims = get_jwt_claims()
+        if 'developer' not in claims['roles']:
+            return {
+                'message': 'Developers only!'
+            }, 404
+        else:
+            return fn(*args, **kwargs)
+    return wrapper
+
 # Add roles to claims on token creation
 @jwt.user_claims_loader
 def add_claims_to_access_token(user):
