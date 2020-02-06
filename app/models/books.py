@@ -1,5 +1,4 @@
-from app import db, ma
-from sqlalchemy.orm import relationship
+from app import db
 from .authors import Author
 from sqlalchemy.sql import expression
 
@@ -13,4 +12,4 @@ class Book(db.Model):
     approved = db.Column(db.Boolean, server_default=expression.false())
     created_dt = db.Column(db.DateTime, server_default=db.func.now())
     modified_dt = db.Column(db.DateTime, onupdate=db.func.now())
-    authors = relationship(Author, secondary='book_authors')
+    authors = db.relationship(Author, secondary='book_authors')

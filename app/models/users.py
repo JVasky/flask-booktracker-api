@@ -1,6 +1,5 @@
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy.orm import relationship
 
 
 class LowerCaseText(db.TypeDecorator):
@@ -22,7 +21,7 @@ class User(db.Model):
     password = db.Column(db.String(128), nullable=False)
     created_dt = db.Column(db.DateTime, server_default=db.func.now())
     modified_dt = db.Column(db.DateTime, onupdate=db.func.now())
-    roles = relationship('Role', secondary='user_roles')
+    roles = db.relationship('Role', secondary='user_roles')
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -35,7 +34,7 @@ class Role(db.Model):
     __tablename__ = "role"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30), unique=True)
-    users = relationship(User, secondary='user_roles')
+    users = db.relationship(User, secondary='user_roles')
 
 
 class UserRoles(db.Model):
