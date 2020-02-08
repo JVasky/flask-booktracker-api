@@ -2,12 +2,12 @@ from .authors import Author
 from .books import Book
 from .users import User, Role
 from app import ma
-from marshmallow import fields, validates, ValidationError
+from marshmallow import validates, ValidationError
 from marshmallow.validate import Length
 import re
 
 
-class LowerCased(fields.Field):
+class LowerCased(ma.Field):
     # Field that de/serializes to a lowercase string
 
     def _serialize(self, value, attr, obj, **kwargs):
@@ -24,7 +24,7 @@ class UserSchema(ma.ModelSchema):
         model = User
         exclude = ["password"]
 
-    roles = fields.Pluck('RoleSchema', 'name', many=True)
+    roles = ma.Pluck('RoleSchema', 'name', many=True)
 
 
 class RoleSchema(ma.ModelSchema):
@@ -34,11 +34,11 @@ class RoleSchema(ma.ModelSchema):
 
 class CreateUserSchema(ma.Schema):
     username = LowerCased(required=True, validate=Length(max=30))
-    email = fields.Str(required=True, validate=Length(max=120))
-    first_name = fields.Str(required=True, validate=Length(max=30))
-    last_name = fields.Str(required=True, validate=Length(max=30))
-    password = fields.Str(required=True, validate=Length(min=8))
-    roles = fields.List(fields.Str(validate=Length(max=30)), missing=['user'])
+    email = ma.Str(required=True, validate=Length(max=120))
+    first_name = ma.Str(required=True, validate=Length(max=30))
+    last_name = ma.Str(required=True, validate=Length(max=30))
+    password = ma.Str(required=True, validate=Length(min=8))
+    roles = ma.List(ma.Str(validate=Length(max=30)), missing=['user'])
 
     @validates('email')
     def is_valid_email(self, value):
@@ -66,8 +66,8 @@ class CreateUserSchema(ma.Schema):
 
 
 class LoginSchema(ma.Schema):
-    username = fields.Str(required=True, validate=Length(max=30))
-    password = fields.Str(required=True, validate=Length(min=8))
+    username = ma.Str(required=True, validate=Length(max=30))
+    password = ma.Str(required=True, validate=Length(min=8))
 
 
 class BookSchema(ma.ModelSchema):
@@ -79,9 +79,9 @@ class BookSchema(ma.ModelSchema):
 
 
 class CreateBookSchema(ma.Schema):
-    title = fields.Str(required=True, validate=Length(max=30))
-    description = fields.Str(required=True, validate=Length(max=120))
-    authors = fields.List(fields.Integer, required=True)
+    title = ma.Str(required=True, validate=Length(max=30))
+    description = ma.Str(required=True, validate=Length(max=120))
+    authors = ma.List(ma.Integer, required=True)
 
     class Meta:
         model = Book
@@ -95,11 +95,11 @@ class AuthorSchema(ma.ModelSchema):
 
 
 class CreateAuthorSchema(ma.Schema):
-    first_name = fields.Str(required=True, validate=Length(max=100))
-    middle_name = fields.Str(validate=Length(max=100), missing=None)
-    last_name = fields.Str(validate=Length(max=100), missing=None)
-    bio = fields.Str(validate=Length(max=100000), missing=None)
-    books = fields.List(fields.Integer, missing=[])
+    first_name = ma.Str(required=True, validate=Length(max=100))
+    middle_name = ma.Str(validate=Length(max=100), missing=None)
+    last_name = ma.Str(validate=Length(max=100), missing=None)
+    bio = ma.Str(validate=Length(max=100000), missing=None)
+    books = ma.List(ma.Integer, missing=[])
 
 
 class RatingsSchema(ma.Schema):
