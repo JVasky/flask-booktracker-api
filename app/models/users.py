@@ -22,7 +22,8 @@ class User(db.Model):
     created_dt = db.Column(db.DateTime, server_default=db.func.now())
     modified_dt = db.Column(db.DateTime, onupdate=db.func.now())
     roles = db.relationship('Role', secondary='user_roles')
-    user_ratings = db.relationship('Book', secondary='ratings')
+    book_ratings = db.relationship("Ratings", back_populates="user")
+
 
     def set_password(self, password):
         self.password = generate_password_hash(password)

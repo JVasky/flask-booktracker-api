@@ -100,3 +100,9 @@ class CreateAuthorSchema(ma.Schema):
     last_name = fields.Str(validate=Length(max=100), missing=None)
     bio = fields.Str(validate=Length(max=100000), missing=None)
     books = fields.List(fields.Integer, missing=[])
+
+
+class RatingsSchema(ma.Schema):
+    rating = ma.Str()
+    notes = ma.Str()
+    book = ma.Nested(BookSchema)

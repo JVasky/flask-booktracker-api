@@ -1,12 +1,13 @@
 from app import db, api
 from app.models.authors import Author
 from app.models.books import Book
-from app.models.schemas import BookSchema, CreateBookSchema
+from app.models.users import User
+from app.models.ratings import Ratings
+from app.models.schemas import BookSchema, CreateBookSchema, RatingsSchema
 from app.jwt_custom import admin_required
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
 from flask import request
-from sqlalchemy import or_
 from sqlalchemy.exc import SQLAlchemyError
 
 
@@ -20,7 +21,7 @@ class BookAPI(Resource):
             }
             return response, 404
         else:
-            book_schema = BookSchema(exclude=['approved'])
+            book_schema = BookSchema(exclude=['approved', 'user_ratings'])
             result = book_schema.dumps(book)
             response = {
                 'data': result
@@ -38,7 +39,7 @@ class BookPendingListAPI(Resource):
             }
             return response, 404
         else:
-            books_schema = BookSchema(exclude=['authors'], many=True)
+            books_schema = BookSchema(exclude=['authors', 'user_ratings'], many=True)
             result = books_schema.dumps(books)
             response = {
                 'data': result
@@ -56,7 +57,7 @@ class BookListAPI(Resource):
             }
             return response, 404
         else:
-            books_schema = BookSchema(many=True, exclude=['approved'])
+            books_schema = BookSchema(many=True, exclude=['approved', 'user_ratings'])
             result = books_schema.dumps(books)
             response = {
                 'data': result
@@ -101,6 +102,31 @@ class BookListAPI(Resource):
             return response, 400
 
 
+class ReadBookListAPI(Resource):
+    @jwt_required
+    def get(self):
+        username = get_jwt_identity()
+        user = User.query.filter_by(username=username).first()
+        if user is None:
+            response = {
+                'message': 'user does not exist'
+            }
+            return response, 404
+        books = Ratings.query.filter_by(user_id=user.id).all()
+        if len(books) == 0:
+            response = {
+                'message': 'no books read'
+            }
+            return response, 404
+        else:
+            ratings_schema = RatingsSchema(many=True)
+            result = ratings_schema.dumps(books)
+            response = {
+                'data': result
+            }
+            return response
+
+
 class AuthorBookListAPI(Resource):
     @jwt_required
     def get(self, author_id):
@@ -122,7 +148,7 @@ class AuthorBookListAPI(Resource):
 class BookTitleSearchAPI(Resource):
     @jwt_required
     def get(self, keyword):
-        books = Book.query.filter(or_(Book.title.ilike(f'%{keyword}%'), Book.description.ilike(f'%{keyword}%'))).all()
+        books = Book.query.filter(db.or_(Book.title.ilike(f'%{keyword}%'), Book.description.ilike(f'%{keyword}%'))).all()
         if len(books) == 0:
             response = {
                 'message': 'no books match'
@@ -139,6 +165,7 @@ class BookTitleSearchAPI(Resource):
 
 api.add_resource(BookAPI, '/books/<int:id>', endpoint='book')
 api.add_resource(BookListAPI, '/books', endpoint='books')
+api.add_resource(ReadBookListAPI, '/books/read', endpoint='read-books')
 api.add_resource(BookPendingListAPI, '/books/pending', endpoint='books-pending')
 api.add_resource(AuthorBookListAPI, '/books/author/<int:author_id>', endpoint='books_by_author')
 api.add_resource(BookTitleSearchAPI, '/books/search/<string:keyword>', endpoint='book_title_search')

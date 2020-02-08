@@ -13,5 +13,8 @@ class Ratings(db.Model):
         db.ForeignKey('book.id'),
         primary_key=True
     )
+    book = db.relationship("Book", back_populates="user_ratings")
+    user = db.relationship("User", back_populates="book_ratings")
     rating = db.Column(db.SmallInteger, nullable=False)
+    notes = db.Column(db.Text)
     __table_args__ = (db.CheckConstraint('rating BETWEEN 0 AND 10', name='valid_rating_check'),)
