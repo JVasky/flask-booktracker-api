@@ -5,7 +5,7 @@ from app.models.users import User
 from app.models.ratings import Ratings
 from app.models.schemas import BookSchema, CreateBookSchema, RatingsSchema
 from app.jwt_custom import admin_required
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt_claims
 from flask_restful import Resource
 from flask import request
 from sqlalchemy.exc import SQLAlchemyError
@@ -104,9 +104,17 @@ class BookListAPI(Resource):
 
 class ReadBookListAPI(Resource):
     @jwt_required
-    def get(self):
-        username = get_jwt_identity()
-        user = User.query.filter_by(username=username).first()
+    def get(self, user_id=None):
+        if user_id is not None:
+            claims = get_jwt_claims()
+            if 'admin' not in claims['roles'] and 'developer' not in claims['roles']:
+                return {
+                    'message': 'Admins only!'
+                }, 403
+            user = User.query.filter_by(id=user_id).first()
+        else:
+            username = get_jwt_identity()
+            user = User.query.filter_by(username=username).first()
         if user is None:
             response = {
                 'message': 'user does not exist'
@@ -165,7 +173,7 @@ class BookTitleSearchAPI(Resource):
 
 api.add_resource(BookAPI, '/books/<int:id>', endpoint='book')
 api.add_resource(BookListAPI, '/books', endpoint='books')
-api.add_resource(ReadBookListAPI, '/books/read', endpoint='read-books')
+api.add_resource(ReadBookListAPI, '/books/read', '/books/read/<int:user_id>', endpoint='read-books')
 api.add_resource(BookPendingListAPI, '/books/pending', endpoint='books-pending')
 api.add_resource(AuthorBookListAPI, '/books/author/<int:author_id>', endpoint='books_by_author')
 api.add_resource(BookTitleSearchAPI, '/books/search/<string:keyword>', endpoint='book_title_search')
