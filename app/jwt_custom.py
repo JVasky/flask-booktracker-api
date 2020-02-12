@@ -38,7 +38,12 @@ def dev_required(fn):
 # Add roles to claims on token creation
 @jwt.user_claims_loader
 def add_claims_to_access_token(user):
-    return {'roles': user['roles']}
+    return {
+        'firstName': user['first_name'],
+        'lastName': user['last_name'],
+        'email': user['email'],
+        'roles': user['roles']
+    }
 
 # Add username to identity on token creation
 @jwt.user_identity_loader
