@@ -171,9 +171,25 @@ class BookTitleSearchAPI(Resource):
             return response
 
 
+class BookApprovalAPI(Resource):
+    @admin_required
+    def put(self, id):
+        book = Book.query.filter_by(id=id).first()
+        if book is None:
+            response = {
+                'message': 'book does not exist'
+            }
+            return response, 404
+        else:
+            book.approved = True
+            db.session.commit()
+            return "", 204
+
+
 api.add_resource(BookAPI, '/books/<int:id>', endpoint='book')
 api.add_resource(BookListAPI, '/books', endpoint='books')
 api.add_resource(ReadBookListAPI, '/books/read', '/books/read/<int:user_id>', endpoint='read-books')
 api.add_resource(BookPendingListAPI, '/books/pending', endpoint='books-pending')
+api.add_resource(BookApprovalAPI, '/books/approve/<int:id>', endpoint='approve-book')
 api.add_resource(AuthorBookListAPI, '/books/author/<int:author_id>', endpoint='books_by_author')
 api.add_resource(BookTitleSearchAPI, '/books/search/<string:keyword>', endpoint='book_title_search')
