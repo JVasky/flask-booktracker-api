@@ -1,5 +1,6 @@
 from app import db
 from sqlalchemy import UniqueConstraint
+from sqlalchemy.sql import expression
 
 
 # Book Class/Model
@@ -12,5 +13,6 @@ class Author(db.Model):
     bio = db.Column(db.Text)
     created_dt = db.Column(db.DateTime, server_default=db.func.now())
     modified_dt = db.Column(db.DateTime, onupdate=db.func.now())
+    approved = db.Column(db.Boolean, server_default=expression.false())
     books = db.relationship('Book', secondary='book_authors')
     __table_args__ = (UniqueConstraint('first_name', 'middle_name', 'last_name', name='_author_name_uc'),)

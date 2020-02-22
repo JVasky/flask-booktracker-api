@@ -86,6 +86,24 @@ class AuthorListAPI(Resource):
             return response, 40
 
 
+class AuthorPendingListAPI(Resource):
+    @admin_required
+    def get(self):
+        authors = Author.query.filter_by(approved=False).order_by(Author.id).all()
+        if len(authors) == 0:
+            response = {
+                'message': 'There are no authors'
+            }
+            return response, 404
+        else:
+            authors_schema = AuthorSchema(many=True)
+            result = authors_schema.dumps(authors)
+            response = {
+                'data': result
+            }
+            return response
+
+
 class AuthorAPI(Resource):
     @jwt_required
     def get(self, author_id):
@@ -105,4 +123,5 @@ class AuthorAPI(Resource):
 
 
 api.add_resource(AuthorListAPI, '/authors', endpoint='authors')
+api.add_resource(AuthorPendingListAPI, '/authors/pending', endpoint='authors-pending')
 api.add_resource(AuthorAPI, '/authors/<int:author_id>', endpoint='author')
