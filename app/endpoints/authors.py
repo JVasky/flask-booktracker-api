@@ -83,7 +83,31 @@ class AuthorListAPI(Resource):
                 'message': 'there were errors with the author submission',
                 'errors': errors
             }
-            return response, 40
+            return response, 400
+
+    def put(self):
+        data = request.get_json()
+        create_author_schema = CreateAuthorSchema()
+        errors = create_author_schema.validate(data)
+        if(len(errors) > 0):
+            response = {
+                'message': 'there were errors with the author update',
+                'errors': errors
+            }
+            return response, 400
+        author = Author.query.filter_by(id=data['id']).first()
+        if author is None:
+            response = {
+                'message': 'author does not exist'
+            }
+            return response, 404
+        else:
+            author.first_name = data['first_name']
+            author.middle_name = data['middle_name']
+            author.last_name = data['last_name']
+            author.bio = data['bio']
+            db.session.commit()
+            return "", 204
 
 
 class AuthorPendingListAPI(Resource):
@@ -122,6 +146,22 @@ class AuthorAPI(Resource):
             return response
 
 
+class AuthorApprovalAPI(Resource):
+    @admin_required
+    def put(self, id):
+        author = Author.query.filter_by(id=id).first()
+        if author is None:
+            response = {
+                'message': 'author does not exist'
+            }
+            return response, 404
+        else:
+            author.approved = True
+            db.session.commit()
+            return "", 204
+
+
 api.add_resource(AuthorListAPI, '/authors', endpoint='authors')
 api.add_resource(AuthorPendingListAPI, '/authors/pending', endpoint='authors-pending')
 api.add_resource(AuthorAPI, '/authors/<int:author_id>', endpoint='author')
+api.add_resource(AuthorApprovalAPI, '/authors/approve/<int:author_id>', endpoint='approve-author')
