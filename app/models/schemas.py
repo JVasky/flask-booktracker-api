@@ -38,6 +38,7 @@ class CreateUserSchema(ma.Schema):
     first_name = ma.Str(required=True, validate=Length(max=30))
     last_name = ma.Str(required=True, validate=Length(max=30))
     password = ma.Str(required=True, validate=Length(min=8))
+    active = ma.Str(missing=True)
     roles = ma.List(ma.Str(validate=Length(max=30)), missing=['user'])
 
     @validates('email')

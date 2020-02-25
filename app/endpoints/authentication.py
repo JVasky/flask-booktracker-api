@@ -24,7 +24,7 @@ class LoginAPI(Resource):
             }
             return response, 400
         data = login_schema.load(data)
-        user = User.query.filter_by(username=data['username']).first()
+        user = User.query.filter_by(username=data['username'], active=True).first()
         if user is None:
             return {
                 'message': 'Invalid username or password'
