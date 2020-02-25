@@ -3,6 +3,7 @@ from app.models.users import User, Role
 from app.models.schemas import UserSchema, CreateUserSchema
 from flask import request
 from flask_restful import Resource
+from flask_jwt_extended import get_jwt_identity
 from sqlalchemy.exc import SQLAlchemyError
 from app.jwt_custom import admin_required
 
@@ -130,9 +131,14 @@ class UserActivateAPI(Resource):
             }
             return response, 404
         else:
-            user.active = True
-            db.session.commit()
-            return '', 204
+            if user.username != get_jwt_identity():
+                user.active = True
+                db.session.commit()
+                return '', 204
+            else:
+                return {
+                    'message': 'user cannot activate self'
+                }, 400
 
 
 class UserDeactivateAPI(Resource):
@@ -145,9 +151,14 @@ class UserDeactivateAPI(Resource):
             }
             return response, 404
         else:
-            user.active = False
-            db.session.commit()
-            return '', 204
+            if user.username != get_jwt_identity():
+                user.active = False
+                db.session.commit()
+                return '', 204
+            else:
+                return {
+                    'message': 'user cannot deactivate self'
+                }, 400
 
 
 api.add_resource(UserAPI, '/users/<int:user_id>', endpoint='user')
