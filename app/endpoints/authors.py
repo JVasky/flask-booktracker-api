@@ -1,7 +1,7 @@
 from app import api, db
 from app.models.authors import Author
 from app.models.books import Book
-from app.models.schemas import AuthorSchema, CreateAuthorSchema
+from app.models.schemas import AuthorSchema, CreateAuthorSchema, UpdateAuthorSchema
 from app.jwt_custom import admin_required
 from flask import request
 from flask_jwt_extended import jwt_required
@@ -87,8 +87,8 @@ class AuthorListAPI(Resource):
 
     def put(self):
         data = request.get_json()
-        create_author_schema = CreateAuthorSchema()
-        errors = create_author_schema.validate(data)
+        update_author_schema = UpdateAuthorSchema(unknown='ignore')
+        errors = update_author_schema.validate(data)
         if(len(errors) > 0):
             response = {
                 'message': 'there were errors with the author update',
@@ -106,6 +106,7 @@ class AuthorListAPI(Resource):
             author.middle_name = data['middle_name']
             author.last_name = data['last_name']
             author.bio = data['bio']
+            author.approved = data['approved']
             db.session.commit()
             return "", 204
 

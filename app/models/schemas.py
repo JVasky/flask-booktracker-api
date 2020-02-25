@@ -102,6 +102,14 @@ class CreateAuthorSchema(ma.Schema):
     books = ma.List(ma.Integer, missing=[])
 
 
+class UpdateAuthorSchema(ma.Schema):
+    first_name = ma.Str(required=True, validate=Length(max=100))
+    middle_name = ma.Str(validate=Length(max=100), missing=None)
+    last_name = ma.Str(validate=Length(max=100), missing=None)
+    bio = ma.Str(validate=Length(max=100000), missing=None)
+    approved = ma.Boolean(missing=False)
+
+
 class RatingsSchema(ma.Schema):
     rating = ma.Str()
     notes = ma.Str()
