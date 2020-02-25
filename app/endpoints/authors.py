@@ -149,8 +149,8 @@ class AuthorAPI(Resource):
 
 class AuthorApprovalAPI(Resource):
     @admin_required
-    def put(self, id):
-        author = Author.query.filter_by(id=id).first()
+    def put(self, author_id):
+        author = Author.query.filter_by(id=author_id).first()
         if author is None:
             response = {
                 'message': 'author does not exist'
