@@ -120,5 +120,37 @@ class UserListAPI(Resource):
             return response, 400
 
 
+class UserActivateAPI(Resource):
+    @admin_required
+    def put(self, user_id):
+        user = User.query.filter_by(id=user_id).first()
+        if user is None:
+            response = {
+                'message': 'user does not exist'
+            }
+            return response, 404
+        else:
+            user.active = True
+            db.session.commit()
+            return '', 204
+
+
+class UserDeactivateAPI(Resource):
+    @admin_required
+    def put(self, user_id):
+        user = User.query.filter_by(id=user_id).first()
+        if user is None:
+            response = {
+                'message': 'user does not exist'
+            }
+            return response, 404
+        else:
+            user.active = False
+            db.session.commit()
+            return '', 204
+
+
 api.add_resource(UserAPI, '/users/<int:user_id>', endpoint='user')
 api.add_resource(UserListAPI, '/users', endpoint='users')
+api.add_resource(UserActivateAPI, '/users/activate/<int:user_id>', endpoint='user-activate')
+api.add_resource(UserDeactivateAPI, '/users/deactivate/<int:user_id>', endpoint='user-deactivate')
