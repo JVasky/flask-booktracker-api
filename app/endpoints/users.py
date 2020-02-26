@@ -18,7 +18,7 @@ class UserAPI(Resource):
             }
             return response, 404
         else:
-            user_schema = UserSchema()
+            user_schema = UserSchema(exclude=['password'])
             result = user_schema.dumps(user)
             response = {
                 'data': result
@@ -47,7 +47,7 @@ class UserListAPI(Resource):
             }
             return response, 404
         else:
-            users_schema = UserSchema(many=True)
+            users_schema = UserSchema(exclude=['password'], many=True)
             result = users_schema.dumps(users)
             response = {
                 'data': result
@@ -107,7 +107,7 @@ class UserListAPI(Resource):
                     }
                 return response, 500
 
-            user_schema = UserSchema()
+            user_schema = UserSchema(exclude=['password'])
             result = user_schema.dumps(u)
             response = {
                 'data': result

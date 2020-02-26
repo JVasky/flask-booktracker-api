@@ -17,6 +17,14 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = config.JWT_ACCESS_TOKEN_EXPIRES
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = config.JWT_REFRESH_TOKEN_EXPIRES
 app.config['JWT_HEADER_TYPE'] = config.JWT_HEADER_TYPE
 app.config['JWT_ERROR_MESSAGE_KEY'] = config.JWT_ERROR_MESSAGE_KEY
+
+# set SMTP Settings
+app.config['SMTP_SERVER'] = config.SMTP_SERVER
+app.config['SMTP_PORT'] = config.SMTP_PORT
+app.config['SMTP_USER'] = config.SMTP_USER
+app.config['SMTP_PASSWORD'] = config.SMTP_PASSWORD
+app.config['SMTP_FROM_EMAIL'] = config.SMTP_FROM_EMAIL
+
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 api = Api(app)

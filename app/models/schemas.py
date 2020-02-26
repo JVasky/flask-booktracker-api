@@ -63,7 +63,6 @@ class CreateUserSchema(ma.Schema):
 
     class Meta:
         model = User
-        exclude = ["password"]
 
 
 class LoginSchema(ma.Schema):
